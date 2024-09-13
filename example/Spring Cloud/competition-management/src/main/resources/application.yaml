@@ -17,3 +17,6 @@ spring:
         request:
           min-request-size: 2048
 
+customer-management:
+  load-balancer:
+    listOfServices: localhost:9090

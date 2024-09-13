@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@FeignClient(name = "customer-management", url = "http://localhost:9090")
+@FeignClient(name = "customer-management")
 public interface CustomerManagementClient {
 
     @RequestMapping("/customer/{id}")
