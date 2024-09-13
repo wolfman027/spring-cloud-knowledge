@@ -1,0 +1,19 @@
+server:
+  port: 9091
+
+spring:
+  application:
+    name: competition-management
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      httpclient:
+        hc5:
+          enabled: false
+      compression:
+        response:
+          enabled: true
+        request:
+          min-request-size: 2048
+
