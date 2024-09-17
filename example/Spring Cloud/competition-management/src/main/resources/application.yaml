@@ -17,6 +17,9 @@ spring:
         request:
           min-request-size: 2048
 
-customer-management:
-  load-balancer:
-    listOfServices: localhost:9090
+    discovery:
+      client:
+        simple:
+          instances:
+            customer-management[0]:
+              uri: http://localhost:9090
