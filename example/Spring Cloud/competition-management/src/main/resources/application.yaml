@@ -6,6 +6,8 @@ spring:
     name: competition-management
   cloud:
     openfeign:
+      micrometer:
+        enabled: false
       okhttp:
         enabled: true
       httpclient:
@@ -16,10 +18,27 @@ spring:
           enabled: true
         request:
           min-request-size: 2048
-
+      circuitbreaker:
+        enabled: true
+      alphanumeric-ids:
+        enabled: true
     discovery:
       client:
         simple:
           instances:
             customer-management[0]:
               uri: http://localhost:9090
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      DemoClientgetDemo:
+        minimumNumberOfCalls: 69
+  timelimiter:
+    instances:
+      DemoClientgetDemo:
+        timeoutDuration: 10s
+
+logging:
+  level:
+    com.wolfman.marathon.feign.CustomerManagementClient: DEBUG
