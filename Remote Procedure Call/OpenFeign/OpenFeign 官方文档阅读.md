@@ -625,11 +625,166 @@ public interface DemoClient {
 
 
 
+# 14. Spring @RequestMapping 支持
+
+定义一个接口使用参数属性：
+
+~~~java
+@FeignClient("demo")
+public interface DemoTemplate {
+        
+  @PostMapping(value = "/stores/{storeId}", params = "mode=upsert")
+  Store update(@PathVariable("storeId") Long storeId, Store store);
+  
+}
+~~~
+
+上述例子，请求 url 解析为：`/stores/storeId?mode=upsert`。
+
+params 属性还支持使用多个 `key=value` 或只使用一个 `key`：
+
+- 当 `params = { "key1=v1", "key2=v2" }`，请求 url 解析为：`/stores/storeId?key1=v1&key2=v2`
+- 当 `params = "key"`，请求 url 解析为：`/stores/storeId?key`
+
+
+
+# 15. Feign @QueryMap 支持
+
+Spring Cloud OpenFeign 提供了一个等效的 `@SpringQueryMap` 注解，用于将 POJO 或 Map 参数注释为查询参数映射。
+
+例如：
+
+~~~java
+// Params.java
+public class CustomerRequestParams {
+	private String name;
+	private String phone;
+	// [Getters and setters omitted for brevity]
+}
+~~~
+
+使用 `@SpringQueryMap` 注解：
+
+~~~java
+@FeignClient("demo")
+public interface DemoTemplate {
+
+  @GetMapping(path = "/customer/check-existed")
+  String checkExisted(@SpringQueryMap CustomerRequestParams params);
+
+}
+
+// [CustomerManagementClient#checkExisted] ---> GET http://customer-management/customer/check-existed?phone=132&name=rose HTTP/1.1
+~~~
+
+如果需要对生成的查询参数映射进行更多的控制，可以实现自定义的 `QueryMapEncoder` bean。
+
+
+
+# 16. HATEOAS support
+
+Spring 提供了一些api来创建遵循 [HATEOAS](https://en.wikipedia.org/wiki/HATEOAS) 原则、[Spring Hateoas](https://spring.io/projects/spring-hateoas) 和 [Spring Data REST](https://spring.io/projects/spring-data-rest) 的 REST 表示。
+
+`org.springframework.boot:spring-boot-starter-hateoas`  或 `org.springframework.boot:spring-boot-starter-data-rest` ，默认情况下启用 Feign HATEOAS 支持。
+
+当 HATEOAS 支持开启，Feign clients 允许序列化和反序列化 HATEOAS 表示的模型：EntityModel、CollectionModel、PagedModel。
+
+~~~java
+@FeignClient("demo")
+public interface DemoTemplate {
+
+	@GetMapping(path = "/stores")
+	CollectionModel<Store> getStores();
+  
+}
+~~~
+
+
+
+# 17. Spring @MatrixVariable 支持
+
+如果将一个映射（map）作为方法参数传递，那么 `@MatrixVariable` 路径段是通过将映射中的键值对用 `=` 连接起来创建的。
+
+~~~java
+@GetMapping("/objects/links/{matrixVars}")
+Map<String, List<String>> getObjects(@MatrixVariable Map<String, List<String>> matrixVars);
+~~~
+
+
+
+# 18. Feign `CollectionFormat` 支持
+
+在下面的示例中，使用CSV格式而不是默认的 `EXPLODED` 式格式来处理该方法。
+
+~~~java
+@FeignClient(name = "demo")
+protected interface DemoFeignClient {
+
+    @CollectionFormat(feign.CollectionFormat.CSV)
+    @GetMapping(path = "/test")
+    ResponseEntity performRequest(String test);
+
+}
+~~~
+
+
+
+# 19. Reactive Support
+
+由于 OpenFeign 项目目前不支持响应式客户端(如Spring WebClient)，因此 Spring Cloud OpenFeign 也不支持。
 
 
 
 
 
+# 20. Spring Data Support
+
+如果 Jackson Databind 和 Spring Data Commons 在类路径上，那么会自动添加针对 `org.springframework.data.domain.Page` 和 `org.springframework.data.domain.Sort` 的转换器。
+
+要禁用此行为，请设置
+
+```properties
+spring.cloud.openfeign.autoconfiguration.jackson.enabled=false
+```
+
+详情请参见 `org.springframework.cloud.openfeign.FeignAutoConfiguration.FeignJacksonConfiguration`。
+
+
+
+
+
+# 转换 load-balanced HTTP 请求
+
+您可以使用选定的 ServiceInstance 来转换负载均衡的HTTP请求。
+
+对于 Request，你需要实现和定义 LoadBalancerFeignRequestTransformer，如下所示：
+
+~~~java
+@Bean
+public LoadBalancerFeignRequestTransformer transformer() {
+	return new LoadBalancerFeignRequestTransformer() {
+		@Override
+		public Request transformRequest(Request request, ServiceInstance instance) {
+			Map<String, Collection<String>> headers = new HashMap<>(request.headers());
+			headers.put("X-ServiceId", Collections.singletonList(instance.getServiceId()));
+			headers.put("X-InstanceId", Collections.singletonList(instance.getInstanceId()));
+			return Request.create(request.httpMethod(), request.url(), headers, request.body(), request.charset(),
+					request.requestTemplate());
+		}
+	};
+  
+}
+~~~
+
+如果定义了多个转换器，则按照定义 bean 的顺序应用它们。或者，您可以使用 `LoadBalancerFeignRequestTransformer.DEFAULT_ORDER` 指定顺序。
+
+
+
+# X-Forwarded Headers Support
+
+~~~properties
+spring.cloud.loadbalancer.x-forwarded.enabled=true
+~~~
 
 
 

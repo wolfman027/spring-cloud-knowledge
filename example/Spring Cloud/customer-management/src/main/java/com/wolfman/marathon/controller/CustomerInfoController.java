@@ -2,6 +2,7 @@ package com.wolfman.marathon.controller;
 
 import com.wolfman.marathon.dto.CustomerInfoDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,5 +27,13 @@ public class CustomerInfoController {
         log.info("Getting defaultCustomerName: {}", name);
         return "张三" + name;
     }
+
+    @GetMapping("/check-existed")
+    public String checkExisted(@RequestParam("name") String name,
+                               @RequestParam("phone") String phone){
+        log.info("checkExisted name:{}, phone:{}", name, phone);
+        return "Y";
+    }
+
 
 }

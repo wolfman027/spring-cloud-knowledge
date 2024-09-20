@@ -2,8 +2,10 @@ package com.wolfman.marathon.feign;
 
 import com.wolfman.marathon.config.FeignLogConfig;
 import com.wolfman.marathon.dto.CustomerInfoDTO;
+import com.wolfman.marathon.dto.CustomerRequestParams;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,5 +24,8 @@ public interface CustomerManagementClient {
     @GetMapping("/customer/default-customer-name")
     @Cacheable(cacheNames = "demo-cache", key = "#name")
     String defaultCustomerName(@RequestParam("name") String name);
+
+    @GetMapping(path = "/customer/check-existed")
+    String checkExisted(@SpringQueryMap CustomerRequestParams params);
 
 }

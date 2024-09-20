@@ -1,6 +1,7 @@
 package com.wolfman.marathon.controller;
 
 import com.wolfman.marathon.dto.CustomerInfoDTO;
+import com.wolfman.marathon.dto.CustomerRequestParams;
 import com.wolfman.marathon.feign.CustomerManagementClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,14 @@ public class CustomerInfoController {
         String customerName = customerManagementClient.defaultCustomerName(name);
         log.info("customerName:{}", customerName);
         return customerName;
+    }
+
+    @RequestMapping("/check-existed")
+    public String checkExisted(@RequestParam("name") String name,
+                               @RequestParam("phone") String phone) {
+        String result = customerManagementClient.checkExisted(CustomerRequestParams.builder().name(name).phone(phone).build());
+        log.info("checkExisted result:{}", result);
+        return result;
     }
 
 }
