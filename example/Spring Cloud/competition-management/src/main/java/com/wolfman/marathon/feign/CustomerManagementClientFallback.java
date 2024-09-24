@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class CustomerManagementClientFallback implements CustomerManagementClient {
     @Override
     public CustomerInfoDTO getCustomerInfo(String id) {
-        log.info("fallback");
+        System.out.println("fallback: " + System.currentTimeMillis());
         return null;
     }
 
@@ -22,6 +22,12 @@ public class CustomerManagementClientFallback implements CustomerManagementClien
 
     @Override
     public String checkExisted(CustomerRequestParams params) {
+        return null;
+    }
+
+    @Override
+    public String checkCircuitBreaker() {
+        System.out.println("checkCircuitBreaker failback" + System.currentTimeMillis());
         return null;
     }
 

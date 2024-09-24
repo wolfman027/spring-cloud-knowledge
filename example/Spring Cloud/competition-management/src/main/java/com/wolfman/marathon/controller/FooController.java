@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@Import(FeignClientsConfiguration.class)
+//@Import(FeignClientsConfiguration.class)
 //@RestController
 class FooController {
 

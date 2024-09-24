@@ -22,22 +22,57 @@ spring:
         enabled: true
       alphanumeric-ids:
         enabled: true
-    discovery:
-      client:
-        simple:
-          instances:
-            customer-management[0]:
-              uri: http://localhost:9090
+#    discovery:
+#      client:
+#        simple:
+#          instances:
+#            customer-management[0]:
+#              uri: http://localhost:9090
 
 resilience4j:
-  circuitbreaker:
-    instances:
-      DemoClientgetDemo:
-        minimumNumberOfCalls: 69
   timelimiter:
+    configs:
+      default:  # 默认超时配置
+        cancelRunningFuture: false
+        timeoutDuration: 30s
     instances:
-      DemoClientgetDemo:
-        timeoutDuration: 10s
+      backendA: # 自定义超时配置
+        timeoutDuration: 4s
+        cancelRunningFuture: true
+  ratelimiter: # 限流 需要使用 @RateLimiter 注解
+    instances:
+      rateA:
+        limit-for-period: 2 #每个周期允许的请求次数
+        limit-refresh-period: 10s # 刷新周期
+        timeout-duration: 2S #排队等待时间
+    configs:
+      default:
+        limit-for-period: 2 #每个周期允许的请求次数
+        limit-refresh-period: 10s # 刷新周期
+        timeout-duration: 2S #排队等待时间
+  circuitbreaker: # 熔断
+    configs:
+      default:
+        minimum-number-of-calls: 3
+        failureRateThreshold: 20
+        sliding-window-size: 20
+        sliding-window-type: COUNT_BASED
+#  thread-pool-bulkhead:
+#    configs:
+#      default:
+#        max-thread-pool-size: 1
+#        core-thread-pool-size: 1
+#        queue-capacity: 0
+#        keep-alive-duration: 0s
+#        writable-stack-trace-enabled: true
+  bulkhead:
+    configs:
+      default:
+        max-concurrent-calls: 2
+        max-wait-duration: 0ms
+    instances:
+      backendA:
+        base-config: default
 
 logging:
   level:
