@@ -1,6 +1,7 @@
 package com.wolfman.marathon.controller;
 
 import com.wolfman.marathon.dto.CustomerInfoDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Random;
 
 @Slf4j
@@ -18,7 +21,7 @@ public class CustomerInfoController {
     @RequestMapping("/{id}")
     public CustomerInfoDTO getCustomerInfo(@PathVariable("id") String id) throws InterruptedException {
         log.info("Getting customer info for id: {}", id);
-        Thread.sleep(10000);
+//        Thread.sleep(10000);
         return CustomerInfoDTO.builder()
                 .id(id)
                 .customerName("John Doe")
@@ -26,7 +29,10 @@ public class CustomerInfoController {
     }
 
     @RequestMapping("/default-customer-name")
-    public String defaultCustomerName(@RequestParam("name") String name){
+    public String defaultCustomerName(HttpServletRequest request, @RequestParam("name") String name){
+        for (String headerName : Collections.list(request.getHeaderNames())) {
+            log.info("defaultCustomerName headers, key:{}, value:{}", headerName, request.getHeader(headerName));
+        }
         log.info("Getting defaultCustomerName: {}", name);
         return "张三" + name;
     }
